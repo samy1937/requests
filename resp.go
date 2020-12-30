@@ -18,6 +18,7 @@ import (
 )
 
 // Resp represents a request with it's response
+
 type Resp struct {
 	r      *Req
 	req    *retryablehttp.Request

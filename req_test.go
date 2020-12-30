@@ -35,7 +35,7 @@ func TestPost(t *testing.T) {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println(r.ToString())
+	fmt.Println(r.Text())
 }
 
 func TestRetry(t *testing.T) {
@@ -50,7 +50,7 @@ func TestRetry(t *testing.T) {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println(r.ToString())
+	fmt.Println(r.Text())
 	fmt.Println(r.resp.Location())
 }
 
@@ -64,5 +64,5 @@ func TestSetCookiees(t *testing.T) {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println(r.ToString())
+	fmt.Println(r.Text())
 }

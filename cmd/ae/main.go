@@ -18,8 +18,9 @@ func main() {
 	}
 	fmt.Println(r.ToString())
 	fmt.Println("\n\n")
-
+	fmt.Println(r.Response().Header)
 	r, _ = req.Get("http://www.ewebeditor.net/ewebeditor/admin/style.asp")
-	fmt.Println(r.ToString())
+
+	fmt.Println(r)
 
 }
