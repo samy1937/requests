@@ -24,7 +24,7 @@ go get github.com/samy1937/requests
 
 概要
 =======
-`req` 基于标准库 `net/http` 实现了一个友好的API.  
+`requests` 基于标准库 `net/http` 实现了一个友好的API.  
   
 `Req` 和 `Resp` 是两个最重要的结构体, 你可以把 `Req` 看作客户端， 把`Resp` 看作存放请求及其响应的容器，它们都提供许多简洁方便的API，让你可以很轻松做很多很多事情。
 ``` go
