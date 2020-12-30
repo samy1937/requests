@@ -1,76 +1,67 @@
-# req
-[![GoDoc](https://godoc.org/github.com/imroc/req?status.svg)](https://godoc.org/github.com/imroc/req)
+# requests
 
-A golang http request library for humans
+Go语言人性化HTTP请求库
+ 
 
-
-
-Features
+特性
 ========
 
-- Light weight
-- Simple
-- Easy play with JSON and XML
-- Easy for debug and logging
-- Easy file uploads and downloads
-- Easy manage cookie
-- Easy set up proxy
-- Easy set timeout
-- Easy customize http client
+- 轻量级
+- 简单
+- 容易操作JSON和XML
+- 容易调试和日志记录
+- 容易上传和下载文件
+- 容易管理Cookie
+- 容易设置代理
+- 容易设置超时
+- 容易自定义HTTP客户端
 
-
-Document
-========
-[中文](doc/README_cn.md)
-
-
-Install
+安装
 =======
 ``` sh
-go get github.com/imroc/req
+go get github.com/samy1937/requests
 ```
 
-Overview
+概要
 =======
-`req` implements a friendly API over Go's existing `net/http` library.  
+`req` 基于标准库 `net/http` 实现了一个友好的API.  
   
-`Req` and `Resp` are two most important struct, you can think of `Req` as a client that initiate HTTP requests, `Resp` as a information container for the request and response. They all provide simple and convenient APIs that allows you to do a lot of things.
+`Req` 和 `Resp` 是两个最重要的结构体, 你可以把 `Req` 看作客户端， 把`Resp` 看作存放请求及其响应的容器，它们都提供许多简洁方便的API，让你可以很轻松做很多很多事情。
 ``` go
 func (r *Req) Post(url string, v ...interface{}) (*Resp, error)
 ```  
 
-In most cases, only url is required, others are optional, like headers, params, files or body etc.
+大多情况下，发起请求只有url是必选参数，其它都可选，比如请求头、请求参数、文件或请求体等。
 
-There is a default `Req` object, all of its' public methods  are wrapped by the `req` package, so you can also think of `req` package as a `Req` object
+包中含一个默认的 `Req` 对象, 它所有的公有方法都被`req`包对应的公有方法包装了，所以大多数情况下，你直接可以把`req`包看作一个`Req`对象来使用。
 ``` go
-// use Req object to initiate requests.
+// 创建Req对象来发起请求
 r := req.New()
 r.Get(url)
 
-// use req package to initiate request.
+// 直接使用req包发起请求
 req.Get(url)
 ```
-You can use `req.New()` to create lots of `*Req` as client with independent configuration
+你可以使用 `req.New()` 方法来创建 `*Req` 作为一个单独的客户端
 
-Examples
+例子
 =======
-[Basic](#Basic)  
-[Set Header](#Set-Header)  
-[Set Param](#Set-Param)  
-[Set Body](#Set-Body)  
-[Debug](#Debug)  
-[Output Format](#Format)  
+[基础用法](#Basic)  
+[设置请求头](#Set-Header)  
+[设置请求参数](#Set-Param)  
+[设置请求体](#Set-Body)  
+[调试](#Debug)  
+[输出格式](#Format)  
 [ToJSON & ToXML](#ToJSON-ToXML)  
-[Get *http.Response](#Response)  
-[Upload](#Upload)  
-[Download](#Download)  
+[获取 *http.Response](#Response)  
+[上传](#Upload)  
+[下载](#Download)  
 [Cookie](#Cookie)  
-[Set Timeout](#Set-Timeout)  
-[Set Proxy](#Set-Proxy)  
-[Customize Client](#Customize-Client)
-[Set context.Context](#Context)
+[设置超时](#Set-Timeout)  
+[设置代理](#Set-Proxy)  
+[自定义 http.Client](#Customize-Client)  
 
-## <a name="Basic">Basic</a>
+## <a name="Basic">基础用法</a>
 ``` go
 header := req.Header{
 	"Accept":        "application/json",
@@ -80,17 +71,17 @@ param := req.Param{
 	"name": "imroc",
 	"cmd":  "add",
 }
-// only url is required, others are optional.
-r, err := req.Post("http://foo.bar/api", header, param)
+// 只有url必选，其它参数都是可选
+r, err = req.Post("http://foo.bar/api", header, param)
 if err != nil {
 	log.Fatal(err)
 }
-r.ToJSON(&foo)       // response => struct/map
-log.Printf("%+v", r) // print info (try it, you may surprise) 
+r.ToJSON(&foo)       // 响应体转成对象
+log.Printf("%+v", r) // 打印详细信息
 ```
 
-## <a name="Set-Header">Set Header</a>
-Use `req.Header` (it is actually a `map[string]string`)
+## <a name="Set-Header">设置请求头</a>
+使用 `req.Header` (它实际上是一个 `map[string]string`)
 ``` go
 authHeader := req.Header{
 	"Accept":        "application/json",
@@ -98,14 +89,14 @@ authHeader := req.Header{
 }
 req.Get("https://www.baidu.com", authHeader, req.Header{"User-Agent": "V1.1"})
 ```
-use `http.Header`
+使用 `http.Header`
 ``` go
 header := make(http.Header)
 header.Set("Accept", "application/json")
 req.Get("https://www.baidu.com", header)
 ```
 
-You can also set header from struct, use `HeaderFromStruct` func to parse your struct
+你可以使用 `struct` 来设置请求头，用 `HeaderFromStruct` 这个函数来解析你的 `struct`
 ``` go
 type HeaderStruct struct {
 	UserAgent     string `json:"User-Agent"`
@@ -122,19 +113,19 @@ func main(){
 	req.Get("https://www.baidu.com", authHeader, req.Header{"User-Agent": "V1.1"})
 }
 ```
-> Note: Please add tag 'json' to your argument in struct to let you customize the key name of your header
+> 注：请给你的 struct 加上 json tag.
 
-## <a name="Set-Param">Set Param</a>
-Use `req.Param` (it is actually a `map[string]interface{}`)
+## <a name="Set-Param">设置请求参数</a>
+Use `req.Param` (它实际上是一个 `map[string]interface{}`)
 ``` go
 param := req.Param{
 	"id":  "imroc",
 	"pwd": "roc",
 }
 req.Get("http://foo.bar/api", param) // http://foo.bar/api?id=imroc&pwd=roc
-req.Post(url, param)                  // body => id=imroc&pwd=roc
+req.Post(url, param)                  // 请求体 => id=imroc&pwd=roc
 ```
-use `req.QueryParam` force to append params to the url (it is also actually a `map[string]interface{}`)
+使用 `req.QueryParam` 强制将请求参数拼在url后面 (它实际上也是一个 `map[string]interface{}`)
 ``` go
 req.Post("http://foo.bar/api", req.Param{"name": "roc", "age": "22"}, req.QueryParam{"access_token": "fedledGF9Hg9ehTU"})
 /*
@@ -149,55 +140,55 @@ age=22&name=roc
 */
 ```
 
-## <a name="Set-Body">Set Body</a>
+## <a name="Set-Body">设置请求体</a>
 Put `string`, `[]byte` and `io.Reader` as body directly.
 ``` go
 req.Post(url, "id=roc&cmd=query")
 ```
-Put object as xml or json body (add `Content-Type` header automatically)
+将对象作为JSON或XML请求体（自动添加 `Content-Type` 请求头）
 ``` go
 req.Post(url, req.BodyJSON(&foo))
 req.Post(url, req.BodyXML(&bar))
 ```
 
-## <a name="Debug">Debug</a>
-Set global variable `req.Debug` to true, it will print detail infomation for every request.
+## <a name="Debug">调试</a>
+将全局变量 `req.Debug` 设置为`true`，将会把所有请求的详细信息打印在标准输出。
 ``` go
 req.Debug = true
 req.Post("http://localhost/test" "hi")
 ```
-![post](doc/post.png)
+![post](post.png)
 
-## <a name="Format">Output Format</a>
-You can use different kind of output format to log the request and response infomation in your log file in defferent scenarios. For example, use `%+v` output format in the development phase, it allows you to observe the details. Use `%v` or `%-v` output format in production phase, just log the information necessarily.  
+## <a name="Format">输出格式</a>
+您可以使用指定类型的输出格式在日志文件中记录请求和响应的信息。例如，在开发阶段使用`％+v`格式，可以让你观察请求和响应的细节信息。 在生产阶段使用`％v`或`％-v`输出格式，只记录所需要的信息。
 
-### `%+v` or `%+s`
-Output in detail
+### `%+v` 或 `%+s`
+详细输出
 ``` go
 r, _ := req.Post(url, header, param)
-log.Printf("%+v", r) // output the same format as Debug is enabled
+log.Printf("%+v", r) // 输出格式和Debug开启时的格式一样
 ```
 
-### `%v` or `%s`
-Output in simple way (default format)
+### `%v` 或 `%s`
+简单输出（默认格式）
 ``` go
 r, _ := req.Get(url, param)
 log.Printf("%v\n", r) // GET http://foo.bar/api?name=roc&cmd=add {"code":"0","msg":"success"}
-log.Prinln(r)         // same as above
+log.Prinln(r)         // 和上面一样
 ```
 
-### `%-v` or `%-s`
-Output in simple way and keep all in one line (request body or response body may have multiple lines, this format will replace `"\r"` or `"\n"` with `" "`, it's useful when doing some search in your log file)
+### `%-v` 或 `%-s`
+简单输出并保持所有内容在一行内（请求体或响应体可能包含多行，这种格式会将所有换行、回车替换成`" "`, 这在会让你在查日志的时候非常有用）
 
 ### Flag
-You can call `SetFlags` to control the output content, decide which pieces can be output.
+你可以调用 `SetFlags` 控制输出内容，决定哪些部分能够被输出。
 ``` go
 const (
-	LreqHead  = 1 << iota // output request head (request line and request header)
-	LreqBody              // output request body
-	LrespHead             // output response head (response line and response header)
-	LrespBody             // output response body
-	Lcost                 // output time costed by the request
+	LreqHead  = 1 << iota // 输出请求首部（包含请求行和请求头）
+	LreqBody              // 输出请求体
+	LrespHead             // 输出响应首部（包含响应行和响应头）
+	LrespBody             // 输出响应体
+	Lcost                 // 输出请求所消耗掉时长
 	LstdFlags = LreqHead | LreqBody | LrespHead | LrespBody
 )
 ```
@@ -205,12 +196,12 @@ const (
 req.SetFlags(req.LreqHead | req.LreqBody | req.LrespHead)
 ```
 
-### Monitoring time consuming
+### 监控请求耗时
 ``` go
-req.SetFlags(req.LstdFlags | req.Lcost) // output format add time costed by request
+req.SetFlags(req.LstdFlags | req.Lcost) // 输出格式显示请求耗时
 r,_ := req.Get(url)
 log.Println(r) // http://foo.bar/api 3.260802ms {"code":0 "msg":"success"}
-if r.Cost() > 3 * time.Second { // check cost
+if r.Cost() > 3 * time.Second { // 检查耗时
 	log.Println("WARN: slow request:", r)
 }
 ```
@@ -223,7 +214,7 @@ r, _ = req.Post(url, req.BodyXML(&bar))
 r.ToXML(&baz)
 ```
 
-## <a name="Response">Get *http.Response</a>
+## <a name="Response">获取 *http.Response</a>
 ```go
 // func (r *Req) Response() *http.Response
 r, _ := req.Get(url)
@@ -231,21 +222,21 @@ resp := r.Response()
 fmt.Println(resp.StatusCode)
 ```
 
-## <a name="Upload">Upload</a>
-Use `req.File` to match files
+## <a name="Upload">上传</a>
+使用 `req.File` 匹配文件
 ``` go
 req.Post(url, req.File("imroc.png"), req.File("/Users/roc/Pictures/*.png"))
 ```
-Use `req.FileUpload` to fully control
+使用 `req.FileUpload` 细粒度控制上传
 ``` go
 file, _ := os.Open("imroc.png")
 req.Post(url, req.FileUpload{
 	File:      file,
-	FieldName: "file",       // FieldName is form field name
-	FileName:  "avatar.png", //Filename is the name of the file that you wish to upload. We use this to guess the mimetype as well as pass it onto the server
+	FieldName: "file",       // FieldName 是表单字段名
+	FileName:  "avatar.png", // Filename 是要上传的文件的名称，我们使用它来猜测mimetype，并将其上传到服务器上
 })
 ```
-Use `req.UploadProgress` to listen upload progress
+使用`req.UploadProgress`监听上传进度
 ```go
 progress := func(current, total int64) {
 	fmt.Println(float32(current)/float32(total)*100, "%")
@@ -254,12 +245,12 @@ req.Post(url, req.File("/Users/roc/Pictures/*.png"), req.UploadProgress(progress
 fmt.Println("upload complete")
 ```
 
-## <a name="Download">Download</a>
+## <a name="Download">下载</a>
 ``` go
 r, _ := req.Get(url)
 r.ToFile("imroc.png")
 ```
-Use `req.DownloadProgress` to listen download progress
+使用`req.DownloadProgress`监听下载进度
 ```go
 progress := func(current, total int64) {
 	fmt.Println(float32(current)/float32(total)*100, "%")
@@ -270,24 +261,24 @@ fmt.Println("download complete")
 ```
 
 ## <a name="Cookie">Cookie</a>
-By default, the underlying `*http.Client` will manage your cookie(send cookie header to server automatically if server has set a cookie for you), you can disable it by calling this function :
+默认情况下，底层的 `*http.Client` 会自动管理你的cookie（如果服务器给你发了cookie，之后的请求它会自动带上cookie请求头给服务器）, 你可以调用这个方法取消自动管理：
 ``` go
 req.EnableCookie(false)
 ```
-and you can set cookie in request just using `*http.Cookie`
+你还可以在发送请求的时候自己传入 `*http.Cookie`
 ``` go
 cookie := new(http.Cookie)
 // ......
 req.Get(url, cookie)
 ```
 
-## <a name="Set-Timeout">Set Timeout</a>
+## <a name="Set-Timeout">设置超时</a>
 ``` go
 req.SetTimeout(50 * time.Second)
 ```
 
-## <a name="Set-Proxy">Set Proxy</a>
-By default, req use proxy from system environment if `http_proxy` or `https_proxy` is specified, you can set a custom proxy or disable it by set `nil`
+## <a name="Set-Proxy">设置代理</a>
+默认情况下，如果系统环境变量有 `http_proxy` 或 `https_proxy` ，req会讲对应的地址作为对应协议的代理，你也可以自定义设置代理，或者将其置为`nil`，即取消代理。
 ``` go
 req.SetProxy(func(r *http.Request) (*url.URL, error) {
 	if strings.Contains(r.URL.Hostname(), "google") {
@@ -296,28 +287,22 @@ req.SetProxy(func(r *http.Request) (*url.URL, error) {
 	return nil, nil
 })
 ```
-Set a simple proxy (use fixed proxy url for every request)
+设置简单代理（将所有请求都转发到指定代理url地址上）
 ``` go
 req.SetProxyUrl("http://my.proxy.com:23456")
 ```
 
-## <a name="Context">Set context.Context</a>
-You can pass context.Context in simple way:
-```go
-r, _ := req.Get(url, context.Background())
-```
-
-## <a name="Customize-Client">Customize Client</a>
-Use `SetClient` to change the default underlying `*http.Client`
+## <a name="Customize-Client">自定义HTTP客户端</a>
+使用 `SetClient` 改变底层的 `*http.Client`
 ``` go
 req.SetClient(client)
 ```
-Specify independent http client for some requests
+给某个请求制定特定的 `*http.Client`
 ``` go
 client := &http.Client{Timeout: 30 * time.Second}
 req.Get(url, client)
 ```
-Change some properties of default client you want
+改变底层 `*http.Client` 的某些属性
 ``` go
 req.Client().Jar, _ = cookiejar.New(nil)
 trans, _ := req.Client().Transport.(*http.Transport)
