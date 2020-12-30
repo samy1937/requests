@@ -2,7 +2,7 @@
   GoLang code created by Jirawat Harnsiriwatanakit https://github.com/kazekim
 */
 
-package req
+package requests
 
 import "encoding/json"
 
@@ -38,4 +38,3 @@ func HeaderFromStruct(v interface{}) Header {
 	header = ParseStruct(header, v)
 	return header
 }
-

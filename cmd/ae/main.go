@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/samy1937/req"
+	"github.com/samy1937/requests"
 )
 
 func main() {
 
 	//req.Debug = true
-	request := req.Sessions()
+	req := requests.Sessions()
 
-	r, err := request.Post("http://www.ewebeditor.net/ewebeditor/admin/login.asp?action=login", req.FormData(`h=www.ewebeditor.net&usr=admin&pwd=admin`))
+	r, err := req.Post("http://www.ewebeditor.net/ewebeditor/admin/login.asp?action=login", req.FormData(`h=www.ewebeditor.net&usr=admin&pwd=admin`))
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -19,7 +19,7 @@ func main() {
 	fmt.Println(r.ToString())
 	fmt.Println("\n\n")
 
-	r, _ = request.Get("http://www.ewebeditor.net/ewebeditor/admin/style.asp")
+	r, _ = req.Get("http://www.ewebeditor.net/ewebeditor/admin/style.asp")
 	fmt.Println(r.ToString())
 
 }

@@ -2,7 +2,7 @@
   GoLang code created by Jirawat Harnsiriwatanakit https://github.com/kazekim
 */
 
-package req
+package requests
 
 import "testing"
 
@@ -30,7 +30,7 @@ func TestParseStruct(t *testing.T) {
 func TestHeaderFromStruct(t *testing.T) {
 
 	type HeaderStruct struct {
-		UserAgent string `json:"User-Agent"`
+		UserAgent     string `json:"User-Agent"`
 		Authorization string `json:"Authorization"`
 	}
 
