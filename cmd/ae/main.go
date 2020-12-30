@@ -10,7 +10,7 @@ func main() {
 	//req.Debug = true
 	req := requests.Sessions()
 
-	r, err := req.Post("http://www.ewebeditor.net/ewebeditor/admin/login.asp?action=login", req.FormData(`h=www.ewebeditor.net&usr=admin&pwd=admin`))
+	r, err := req.Post("http://www.ewebeditor.net/ewebeditor/admin/login.asp?action=login", requests.FormData(`h=www.ewebeditor.net&usr=admin&pwd=admin`))
 
 	if err != nil {
 		fmt.Println(err.Error())
