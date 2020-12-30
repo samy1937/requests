@@ -1,8 +1,7 @@
-# req
-[![GoDoc](https://godoc.org/github.com/imroc/req?status.svg)](https://godoc.org/github.com/imroc/req)
+# requests
 
 Go语言人性化HTTP请求库
-
+ 
 
 特性
 ========
@@ -20,7 +19,7 @@ Go语言人性化HTTP请求库
 安装
 =======
 ``` sh
-go get github.com/imroc/req
+go get github.com/samy1937/requests
 ```
 
 概要
