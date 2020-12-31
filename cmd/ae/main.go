@@ -23,4 +23,7 @@ func main() {
 
 	fmt.Println(r)
 
+	r, _ = req.Get("https://www.baidu.com/")
+	fmt.Println(r.Text())
+
 }

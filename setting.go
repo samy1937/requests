@@ -3,6 +3,9 @@ package requests
 import (
 	"crypto/tls"
 	"errors"
+	"github.com/projectdiscovery/fastdialer/fastdialer"
+	"github.com/projectdiscovery/gologger"
+	"github.com/projectdiscovery/hmap/store/hybrid"
 	"github.com/projectdiscovery/retryablehttp-go"
 	"net"
 	"net/http"
@@ -17,6 +20,33 @@ const (
 	defaultMaxWorkers     = 150
 	defaultMaxHistorydata = 150
 )
+
+var (
+	hm     *hybrid.HybridMap
+	dialer *fastdialer.Dialer
+)
+
+func init() {
+	var err error
+	if hm, err = hybrid.New(hybrid.DefaultDiskOptions); err != nil {
+		gologger.Fatal().Msgf("Could not create temporary input file: %s\n", err)
+	}
+
+	fastdialer.DefaultResolvers = []string{
+		"114.114.114.114:53",
+		"223.5.5.5:53",
+		"1.1.1.1:53",
+		"1.0.0.1:53",
+		"8.8.8.8:53",
+		"8.8.4.4:53",
+	}
+
+	dialer, err = fastdialer.NewDialer(fastdialer.DefaultOptions)
+	if err != nil {
+		gologger.Fatal().Msgf(err.Error())
+	}
+
+}
 
 var transport = http.Transport{
 
@@ -83,6 +113,7 @@ func newClient() *retryablehttp.Client {
 	maxRedirects := 0
 
 	transport := &http.Transport{
+		DialContext:         dialer.Dial,
 		MaxIdleConns:        maxIdleConns,
 		MaxIdleConnsPerHost: maxIdleConnsPerHost,
 		MaxConnsPerHost:     maxConnsPerHost,

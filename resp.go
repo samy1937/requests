@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -72,6 +73,27 @@ func (r *Resp) Bytes() []byte {
 	return data
 }
 
+func (r *Resp) Content() []byte {
+	data, _ := r.ToBytes()
+	return data
+}
+
+func (r *Resp) StatusCode() int {
+	return r.resp.StatusCode
+}
+
+func (r *Resp) ContentLength() int64 {
+	return r.resp.ContentLength
+}
+
+func (r *Resp) GetHeaderValue(key string) string {
+	return r.resp.Header.Get(key)
+}
+
+func (r *Resp) Location() (*url.URL, error) {
+	return r.resp.Location()
+}
+
 // ToBytes returns response body as []byte,
 // return error if error happend when reading
 // the response body
@@ -104,6 +126,12 @@ func (r *Resp) ToBytes() ([]byte, error) {
 
 // String returns response body as string
 func (r *Resp) String() string {
+	data, _ := r.ToBytes()
+	return string(data)
+}
+
+// String returns response body as string
+func (r *Resp) Text() string {
 	data, _ := r.ToBytes()
 	return string(data)
 }
