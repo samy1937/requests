@@ -29,7 +29,7 @@ func TestToJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 	var r2 Result
-	err = r.ToJSON(&r2)
+	err = r.Json(&r2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestToXML(t *testing.T) {
 		t.Fatal(err)
 	}
 	var r2 Result
-	err = r.ToXML(&r2)
+	err = r.Xml(&r2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,4 +127,10 @@ func TestBytesAndString(t *testing.T) {
 	if r.String() != respBody {
 		t.Errorf("response body = %s; want = %s", r.String(), respBody)
 	}
+}
+
+func TestHtmlParse(t *testing.T) {
+	r, _ := Get("https://www.baidu.com/")
+	htmpParse, _ := r.Html()
+	fmt.Println(htmpParse.Find("title").Text())
 }

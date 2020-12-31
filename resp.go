@@ -6,6 +6,11 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	//"github.com/antchfx/htmlquery"
+	//"golang.org/x/net/html"
+
+	//"github.com/saintfish/chardet"
 	"github.com/pkg/errors"
 	"github.com/projectdiscovery/retryablehttp-go"
 	"io"
@@ -94,6 +99,11 @@ func (r *Resp) Location() (*url.URL, error) {
 	return r.resp.Location()
 }
 
+func (r *Resp) GetCookies() []*http.Cookie {
+
+	return r.resp.Cookies()
+}
+
 // ToBytes returns response body as []byte,
 // return error if error happend when reading
 // the response body
@@ -115,10 +125,10 @@ func (r *Resp) ToBytes() ([]byte, error) {
 		return nil, errors.Wrap(err, "could not read http body")
 	}
 
-	respBody, err = r.HandleDecompression(respBody)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not decompress http body")
-	}
+	//respBody, err = r.HandleDecompression(respBody)
+	//if err != nil {
+	//	return nil, errors.Wrap(err, "could not decompress http body")
+	//}
 
 	r.respBody = respBody
 	return r.respBody, nil
@@ -136,6 +146,10 @@ func (r *Resp) Text() string {
 	return string(data)
 }
 
+func (r *Resp) GetHeader() http.Header {
+	return r.resp.Header
+}
+
 // ToString returns response body as string,
 // return error if error happend when reading
 // the response body
@@ -145,7 +159,7 @@ func (r *Resp) ToString() (string, error) {
 }
 
 // ToJSON convert json response body to struct or map
-func (r *Resp) ToJSON(v interface{}) error {
+func (r *Resp) Json(v interface{}) error {
 	data, err := r.ToBytes()
 	if err != nil {
 		return err
@@ -154,12 +168,20 @@ func (r *Resp) ToJSON(v interface{}) error {
 }
 
 // ToXML convert xml response body to struct or map
-func (r *Resp) ToXML(v interface{}) error {
+func (r *Resp) Xml(v interface{}) error {
 	data, err := r.ToBytes()
 	if err != nil {
 		return err
 	}
 	return xml.Unmarshal(data, v)
+}
+
+func (r *Resp) Html() (*goquery.Document, error) {
+	data, err := r.ToBytes()
+	if err != nil {
+		return nil, err
+	}
+	return goquery.NewDocumentFromReader(bytes.NewReader(data))
 }
 
 // ToFile download the response body to file with optional download callback

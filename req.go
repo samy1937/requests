@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	retryablehttp "github.com/projectdiscovery/retryablehttp-go"
+	"github.com/samy1937/pcurl"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -125,6 +126,7 @@ func BodyXML(v interface{}) *bodyXml {
 // Req is a convenient client for initiating requests
 type Req struct {
 	transport        *http.Transport
+	resp             *Resp
 	client           *retryablehttp.Client
 	jsonEncOpts      *jsonEncOpts
 	xmlEncOpts       *xmlEncOpts
@@ -179,6 +181,41 @@ func (p *param) Empty() bool {
 	return p.Values == nil
 }
 
+func (r *Req) DoExec(req *http.Request) (resp *Resp, err error) {
+
+	if r.resp == nil {
+		return nil, errors.New("resp nil")
+	}
+	resp = r.resp
+	request := &retryablehttp.Request{Request: req, Metrics: retryablehttp.Metrics{}}
+
+	if resp.client == nil {
+		resp.client = r.Client()
+	}
+
+	var response *http.Response
+	response, err = resp.client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	resp.resp = response
+
+	if _, ok := resp.client.HTTPClient.Transport.(*http.Transport); ok && response.Header.Get("Content-Encoding") == "gzip" && req.Header.Get("Accept-Encoding") != "" {
+		body, err := gzip.NewReader(response.Body)
+		if err != nil {
+			return nil, err
+		}
+		response.Body = body
+	}
+
+	// output detail if Debug is enabled
+	if Debug {
+		fmt.Println(resp.Dump())
+	}
+	return
+
+}
+
 // Do execute a http request with sepecify method and url,
 // and it can also have some optional params, depending on your needs.
 func (r *Req) Do(method, rawurl string, vs ...interface{}) (resp *Resp, err error) {
@@ -193,7 +230,6 @@ func (r *Req) Do(method, rawurl string, vs ...interface{}) (resp *Resp, err erro
 		ProtoMajor: 1,
 		ProtoMinor: 1,
 	}, Metrics: retryablehttp.Metrics{}}
-
 	resp = &Resp{req: req, r: r}
 
 	var queryParam param
@@ -698,6 +734,19 @@ func (r *Req) Options(url string, v ...interface{}) (*Resp, error) {
 func Get(url string, v ...interface{}) (*Resp, error) {
 	r := New()
 	return r.Get(url, v...)
+}
+
+func Curl(data string) (*Resp, error) {
+	request, err := pcurl.ParseAndRequest(data)
+	if err != nil {
+		return nil, err
+	}
+	r := New()
+	req := &retryablehttp.Request{Request: request, Metrics: retryablehttp.Metrics{}}
+	resp := &Resp{req: req, r: r}
+	r.resp = resp
+	return r.DoExec(request)
+
 }
 
 // Post execute a http POST request
