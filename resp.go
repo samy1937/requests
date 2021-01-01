@@ -19,7 +19,6 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	"strings"
 	"time"
 )
 
@@ -43,8 +42,11 @@ func (r *Resp) HandleDecompression(bodyOrig []byte) (bodyDec []byte, err error) 
 		return bodyOrig, nil
 	}
 
-	encodingHeader := strings.TrimSpace(strings.ToLower(r.req.Request.Header.Get("Accept-Encoding")))
-	if encodingHeader == "gzip" || encodingHeader == "gzip, deflate" {
+	/*	encodingHeader := strings.TrimSpace(strings.ToLower(r.Request.Header.Get("Accept-Encoding")))
+		if encodingHeader == "gzip" || encodingHeader == "gzip, deflate"*/
+	// Accept-Encoding
+	if r.req.Request.Header.Get("Content-Encoding") == "gzip" || r.req.Request.Header.Get("Accept-Encoding") != "" {
+		fmt.Println(111)
 		gzipreader, err := gzip.NewReader(bytes.NewReader(bodyOrig))
 		if err != nil {
 			return bodyDec, err
@@ -125,10 +127,10 @@ func (r *Resp) ToBytes() ([]byte, error) {
 		return nil, errors.Wrap(err, "could not read http body")
 	}
 
-	//respBody, err = r.HandleDecompression(respBody)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "could not decompress http body")
-	//}
+	respBody, err = r.HandleDecompression(respBody)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not decompress http body")
+	}
 
 	r.respBody = respBody
 	return r.respBody, nil

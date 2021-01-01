@@ -3,6 +3,8 @@ package requests
 import (
 	"crypto/tls"
 	"errors"
+	"github.com/gregjones/httpcache"
+	"github.com/gregjones/httpcache/diskcache"
 	"github.com/projectdiscovery/fastdialer/fastdialer"
 	"github.com/projectdiscovery/gologger"
 	"github.com/projectdiscovery/hmap/store/hybrid"
@@ -24,6 +26,7 @@ const (
 var (
 	hm     *hybrid.HybridMap
 	dialer *fastdialer.Dialer
+	cache  *diskcache.Cache
 )
 
 func init() {
@@ -31,7 +34,7 @@ func init() {
 	if hm, err = hybrid.New(hybrid.DefaultDiskOptions); err != nil {
 		gologger.Fatal().Msgf("Could not create temporary input file: %s\n", err)
 	}
-
+	cache = diskcache.New("cache")
 	fastdialer.DefaultResolvers = []string{
 		"114.114.114.114:53",
 		"223.5.5.5:53",
@@ -125,7 +128,12 @@ func newClient() *retryablehttp.Client {
 	}
 
 	return retryablehttp.NewWithHTTPClient(&http.Client{
-		Transport:     transport,
+		Transport: &httpcache.Transport{
+			Transport: transport,
+			Cache:     cache,
+
+			MarkCachedResponses: true,
+		},
 		Jar:           jar,
 		Timeout:       time.Duration(10) * time.Second,
 		CheckRedirect: makeCheckRedirectFunc(followRedirects, maxRedirects),

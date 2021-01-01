@@ -5,7 +5,10 @@ go 1.15
 require (
 	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/gin-contrib/gzip v0.0.3 // indirect
+	github.com/google/btree v1.0.0 // indirect
+	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/guonaihong/gout v0.1.4 // indirect
+	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/projectdiscovery/fastdialer v0.0.2
 	github.com/projectdiscovery/gologger v1.1.3

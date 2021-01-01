@@ -200,13 +200,14 @@ func (r *Req) DoExec(req *http.Request) (resp *Resp, err error) {
 	}
 	resp.resp = response
 
-	if _, ok := resp.client.HTTPClient.Transport.(*http.Transport); ok && response.Header.Get("Content-Encoding") == "gzip" && req.Header.Get("Accept-Encoding") != "" {
-		body, err := gzip.NewReader(response.Body)
-		if err != nil {
-			return nil, err
-		}
-		response.Body = body
-	}
+	//if response.Header.Get("Content-Encoding") == "gzip" && req.Header.Get("Accept-Encoding") != "" {
+	//
+	//	body, err := gzip.NewReader(response.Body)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	response.Body = body
+	//}
 
 	// output detail if Debug is enabled
 	if Debug {
@@ -420,8 +421,10 @@ func (r *Req) Do(method, rawurl string, vs ...interface{}) (resp *Resp, err erro
 
 	resp.resp = response
 
-	if _, ok := resp.client.HTTPClient.Transport.(*http.Transport); ok && response.Header.Get("Content-Encoding") == "gzip" && req.Header.Get("Accept-Encoding") != "" {
+	if response.Header.Get("Content-Encoding") == "gzip" && req.Header.Get("Accept-Encoding") != "" {
+		fmt.Println(123)
 		body, err := gzip.NewReader(response.Body)
+		fmt.Println(11111)
 		if err != nil {
 			return nil, err
 		}

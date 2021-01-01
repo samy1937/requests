@@ -37,7 +37,7 @@ func main() {
 	requests.Debug = true
 	data := `curl 'http://www.ewebeditor.net/ewebeditor/admin/login.asp?action=login'  \
   -H 'Connection: keep-alive'  \
-  -H 'Cache-Control: max-age=0'  
+  -H 'Cache-Control: max-age=0'  \
   -H 'Upgrade-Insecure-Requests: 1'  \
   -H 'Origin: http://www.ewebeditor.net' \
   -H 'Content-Type: application/x-www-form-urlencoded'  \
@@ -48,7 +48,6 @@ func main() {
   -H 'Cookie: ASPSESSIONIDAATBTDQT=CLIDJDJCEDECGOHNFHBGBCCA; IPCity=%E5%B9%BF%E5%B7%9E'  \
   -Z 'asfsadf'  \
   --data-raw 'h=www.ewebeditor.net&usr=admin&pwd=admin'  \
-  --compressed  \
   --insecure`
 
 	//data =`curl 'https://www.ipip.net/ip.html' \
@@ -71,7 +70,7 @@ func main() {
 	//--compressed`
 	r, err = requests.Curl(data)
 	if err != nil {
-		//fmt.Println(err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 	fmt.Println(r.Text())
