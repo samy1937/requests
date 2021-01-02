@@ -87,7 +87,7 @@ func TestCurl(t *testing.T) {
   --data-raw 'h=www.ewebeditor.net&usr=admin&pwd=admin'  
   --compressed  
   --insecure`
-	r, err := Curl(data)
+	r, err := Curl(data, HttpProxy("http://127.0.0.1:8080"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}

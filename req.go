@@ -61,6 +61,8 @@ type BasicAuth struct {
 
 type Cookies string
 
+type HttpProxy string
+
 // FileUpload represents a file to upload
 type FileUpload struct {
 	// filename in multipart form.
@@ -739,12 +741,22 @@ func Get(url string, v ...interface{}) (*Resp, error) {
 	return r.Get(url, v...)
 }
 
-func Curl(data string) (*Resp, error) {
+func Curl(data string, vs ...interface{}) (*Resp, error) {
 	request, err := pcurl.ParseAndRequest(data)
 	if err != nil {
 		return nil, err
 	}
 	r := New()
+
+	for _, v := range vs {
+		switch vv := v.(type) {
+		case HttpProxy:
+			fmt.Println(string(vv))
+			_ = r.SetProxyUrl(string(vv))
+		}
+
+	}
+
 	req := &retryablehttp.Request{Request: request, Metrics: retryablehttp.Metrics{}}
 	resp := &Resp{req: req, r: r}
 	r.resp = resp

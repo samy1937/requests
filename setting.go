@@ -3,7 +3,6 @@ package requests
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/gregjones/httpcache"
 	"github.com/gregjones/httpcache/diskcache"
 	"github.com/projectdiscovery/fastdialer/fastdialer"
 	"github.com/projectdiscovery/gologger"
@@ -31,10 +30,12 @@ var (
 
 func init() {
 	var err error
-	if hm, err = hybrid.New(hybrid.DefaultDiskOptions); err != nil {
-		gologger.Fatal().Msgf("Could not create temporary input file: %s\n", err)
+
+	hybrid.DefaultDiskOptions = hybrid.Options{
+		Type:    hybrid.Memory,
+		Cleanup: true,
 	}
-	cache = diskcache.New("cache")
+
 	fastdialer.DefaultResolvers = []string{
 		"114.114.114.114:53",
 		"223.5.5.5:53",
@@ -115,7 +116,14 @@ func newClient() *retryablehttp.Client {
 	followRedirects := true
 	maxRedirects := 0
 
+	//uri, err := url.Parse("http://127.0.0.1:8080")
+	//
+	//if err != nil{
+	//	log.Fatal("parse url error: ", err)
+	//}
+
 	transport := &http.Transport{
+		//Proxy: http.ProxyURL(uri),
 		DialContext:         dialer.Dial,
 		MaxIdleConns:        maxIdleConns,
 		MaxIdleConnsPerHost: maxIdleConnsPerHost,
@@ -128,12 +136,7 @@ func newClient() *retryablehttp.Client {
 	}
 
 	return retryablehttp.NewWithHTTPClient(&http.Client{
-		Transport: &httpcache.Transport{
-			Transport: transport,
-			Cache:     cache,
-
-			MarkCachedResponses: true,
-		},
+		Transport:     transport,
 		Jar:           jar,
 		Timeout:       time.Duration(10) * time.Second,
 		CheckRedirect: makeCheckRedirectFunc(followRedirects, maxRedirects),
